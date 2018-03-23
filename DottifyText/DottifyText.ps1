@@ -9,8 +9,6 @@
         # ':small-dots'     -> Small braille dots
         # 'A', 'B', etc.    -> A specific character
         [string] $format = ':small-dots',
-        # The color that should be used for the next
-        [System.ConsoleColor] $color = [System.ConsoleColor]::White,
         # The font json data
         [string] $font =
 @"
@@ -155,10 +153,7 @@
     )
 
     # (Possible) TODO List:
-    # - Color support
-    # - Parse characters from JSON
     # - Autofill rows if height doesn't match
-    # - Support multiline with '\n' character
     # - Support '\t', etc.
 
     # A map with all the characters in the alphabet, 1 represents a dot
@@ -278,17 +273,17 @@
     # https://en.wikipedia.org/wiki/Braille_Patterns
 
     if ($format -eq ':small-dots') {
-        # Horizontal divided by 2, 2 dots in the horizontal direction per char, 4 per char vertically
+        # [y][x]
+        # 2 dots per char in x direction
+        # 4 dots per char in y direction
+        $brailleBits = @((0x1, 0x8), (0x2, 0x10), (0x4, 0x20), (0x40, 0x80))
+        
+        $horizontalDotsPerChar = $brailleBits[0].Count
+        $verticalDotsPerChar = $brailleBits.Count
 
-        $horizontalDotsPerChar = 2
-        $verticalDotsPerChar = 4
-    
         $brailleDataWidth = [int] [System.Math]::Ceiling([double] $maxLineLength / [double] $horizontalDotsPerChar)
         $brailleDataHeight = [int] [System.Math]::Ceiling([double] $dataLines.Count / [double] $verticalDotsPerChar)
         
-        # [y][x]
-        $brailleBits = @((0x1, 0x8), (0x2, 0x10), (0x4, 0x20), (0x40, 0x80))
-
         # Create a 2d array list to store the braille byte patterns
         $braillePatterns = New-Object System.Collections.ArrayList
         for ($j = 0; $j -lt $brailleDataHeight; $j++) {
@@ -330,13 +325,6 @@
         }
     }
     
-    # Change the output color
-    #$originalColor = $host.ui.RawUI.ForegroundColor
-    #$host.ui.RawUI.ForegroundColor = $color
-    
     # Write output
     Write-Output $dataLines
-
-    # Change the output color back to the original
-    #$host.ui.RawUI.ForegroundColor = $originalColor
 }
