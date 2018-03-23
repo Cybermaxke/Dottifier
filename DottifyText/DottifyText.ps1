@@ -101,7 +101,7 @@
         "    O",
         "O   O",
         "O   O",
-        " OOO"
+        " OOO "
     ],
     "kK": [
         "O   O",
@@ -147,6 +147,150 @@
         "O   O",
         "O   O",
         " OOO "
+    ],
+    "pP": [
+        "OOOO ",
+        "O   O",
+        "O   O",
+        "OOOO ",
+        "O    ",
+        "O    ",
+        "O    "
+    ],
+    "qQ": [
+        " OOO ",
+        "O   O",
+        "O   O",
+        "O   O",
+        "O O O",
+        "O  OO",
+        " OOO "
+    ],
+    "rR": [
+        "OOOO ",
+        "O   O",
+        "O   O",
+        "OOOO ",
+        "O O  ",
+        "O  O ",
+        "O   O"
+    ],
+    "sS": [
+        " OOO ",
+        "O   O",
+        "O    ",
+        " OOO ",
+        "    O",
+        "O   O",
+        " OOO "
+    ],
+    "tT": [
+        "OOOOO",
+        "  O  ",
+        "  O  ",
+        "  O  ",
+        "  O  ",
+        "  O  ",
+        "  O  "
+    ],
+    "uU": [
+        "O   O",
+        "O   O",
+        "O   O",
+        "O   O",
+        "O   O",
+        "O   O",
+        " OOO "
+    ],
+    "vV": [
+        "O   O",
+        "O   O",
+        "O   O",
+        "O   O",
+        "O   O",
+        " O O ",
+        "  O  "
+    ],
+    "wW": [
+        "O   O",
+        "O   O",
+        "O   O",
+        "O   O",
+        "O O O",
+        "O O O",
+        " O O "
+    ],
+    "xX": [
+        "O   O",
+        "O   O",
+        " O O ",
+        "  O  ",
+        " O O ",
+        "O   O",
+        "O   O"
+    ],
+    "yY": [
+        "O   O",
+        "O   O",
+        " O O ",
+        "  O  ",
+        "  O  ",
+        "  O  ",
+        "  O  "
+    ],
+    "zZ": [
+        "OOOOO",
+        "    O",
+        "   O ",
+        "  O  ",
+        " O   ",
+        "O    ",
+        "OOOOO"
+    ],
+    " ": [
+        "     ",
+        "     ",
+        "     ",
+        "     ",
+        "     ",
+        "     ",
+        "     "
+    ],
+    ".": [
+        "     ",
+        "     ",
+        "     ",
+        "     ",
+        "     ",
+        "     ",
+        "  O  "
+    ],
+    "?": [
+        " OOO ",
+        "O   O",
+        "    O",
+        "   O ",
+        "  O  ",
+        "     ",
+        "  O  "
+    ],
+    "!": [
+        "  O  ",
+        "  O  ",
+        "  O  ",
+        "  O  ",
+        "  O  ",
+        "     ",
+        "  O  "
+    ],
+    "\u0000": [
+        "OOOOO",
+        "O   O",
+        "OO OO",
+        "O O O",
+        "OO OO",
+        "O   O",
+        "OOOOO"
     ]
 }
 "@
@@ -231,6 +375,10 @@
         foreach ($char in [char[]] $line) {
             # Get the data for the given character
             $data = $charMap[$char]
+            # Check if the character isn't missing
+            if ($data -eq $null) {
+                $data = $charMap[[char] 0x0000]
+            }
             # Increase the current line length
             $length +=  $data.Count * $size
             # Loop through all the rows
@@ -318,8 +466,13 @@
         for ($j = 0; $j -lt $brailleDataHeight; $j++) {
             $line = ""
             for ($i = 0; $i -lt $brailleDataWidth; $i++) {
+                $bits = $braillePatterns[$j][$i]
+                # The space braille unicode doesn't have the same length :(
+                if ($bits -eq 0) {
+                    $bits = 0x80
+                }
                 # Calculate the unicode
-                $line += [char] ([int] 0x2800 -bor $braillePatterns[$j][$i])
+                $line += [char] ([int] 0x2800 -bor $bits)
             }
             $dataLines.Add($line) > $null
         }
