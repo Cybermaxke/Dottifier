@@ -1,4 +1,4 @@
-﻿#function Write-Dotted {
+﻿function Dottify-Text {
 	# Input parameters
 	param (
 		# The text that should be converted into the dotted output
@@ -179,9 +179,17 @@
 
 	# Convert the json string into a object and
 	# iterate through the entries to extract the font data
-	$fontData = (New-Object System.Web.Script.Serialization.JavaScriptSerializer).Deserialize($font, [System.Collections.Hashtable])
-	$fontData.GetEnumerator() | ForEach-Object {
-		foreach ($char in [char[]] $_.Key) {
+
+	# Powershell 2
+	#$fontData = (New-Object System.Web.Script.Serialization.JavaScriptSerializer).Deserialize($font, [System.Collections.Hashtable])
+	#$fontData.GetEnumerator() | ForEach-Object {
+	#	foreach ($char in [char[]] $_.Key) {
+	#		$charMap[$char] = $_.Value
+	#	}
+	#}
+
+	($font | ConvertFrom-Json).PSObject.Properties | ForEach {
+		foreach ($char in [char[]] $_.Name) {
 			$charMap[$char] = $_.Value
 		}
 	}
@@ -350,7 +358,7 @@
 		for ($j = 0; $j -lt $brailleDataHeight; $j++) {
 			$line = ""
 			for ($i = 0; $i -lt $brailleDataWidth; $i++) {
-				$line += [char] (0x2800 -bor $braillePatterns[$j][$i])
+				$line += [char] ([int] 0x2800 -bor $braillePatterns[$j][$i])
 			}
 			$dataLines.Add($line) > $null
 		}
@@ -365,4 +373,4 @@
 
 	# Change the output color back to the original
 	#$host.ui.RawUI.ForegroundColor = $originalColor
-#}
+}

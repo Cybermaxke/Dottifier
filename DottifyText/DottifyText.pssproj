@@ -7,7 +7,8 @@
     <RootNamespace>MyApplication</RootNamespace>
     <AssemblyName>MyApplication</AssemblyName>
     <Name>DottifyText</Name>
-    <DebugArguments>-text hoho -size 2 -format X -color darkgreen</DebugArguments>
+    <DebugArguments>
+    </DebugArguments>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -29,6 +30,7 @@
   <ItemGroup />
   <ItemGroup>
     <Compile Include="DottifyText.ps1" />
+    <Compile Include="DottifyTextTest.ps1" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <Target Name="Build" />
