@@ -277,9 +277,6 @@
     ## Step 2 (if needed):
     # https://en.wikipedia.org/wiki/Braille_Patterns
 
-	Write-Output $dataLines
-	Write-Output ""
-
 	if ($format -eq ':small-dots') {
 		# Horizontal divided by 2, 2 dots in the horizontal direction per char, 4 per char vertically
 
@@ -288,6 +285,9 @@
 	
 		$brailleDataWidth = [int] [System.Math]::Ceiling([double] $maxLineLength / [double] $horizontalDotsPerChar)
 		$brailleDataHeight = [int] [System.Math]::Ceiling([double] $dataLines.Count / [double] $verticalDotsPerChar)
+		
+		# [y][x]
+		$brailleBits = @((0x1, 0x8), (0x2, 0x10), (0x4, 0x20), (0x40, 0x80))
 
 		# Create a 2d array list to store the braille byte patterns
 		$braillePatterns = New-Object System.Collections.ArrayList
@@ -309,55 +309,21 @@
 				$brailleX = [int] [System.Math]::Floor($i / $horizontalDotsPerChar)
 				# Get the local x coordinate within the braille character
 				$brailleXLocal = [int] ($i % $horizontalDotsPerChar)
-				
-				#"y: $j"
-				#"x: $i"
-				#"brailleY: $brailleY"
-				#"brailleYLocal: $brailleYLocal"
-				#"brailleX: $brailleX"
-				#"brailleXLocal: $brailleXLocal"
-				([char[]] $dataLines[$j])[$i]
 				# Apply the bit for the specific dot, if needed
 				if (([char[]] $dataLines[$j])[$i] -eq $tempFormat) {
-					# Get the braille bit for the specific
-					# dot at the local indexes
-					$bit = 0
-					if ($brailleYLocal -eq 0) {
-						if ($brailleXLocal -eq 0) {
-							$bit = 0x01
-						} else {
-							$bit = 0x08
-						}
-					} elseif ($brailleYLocal -eq 1) {
-						if ($brailleXLocal -eq 0) {
-							$bit = 0x02
-						} else {
-							$bit = 0x10
-						}
-					} elseif ($brailleYLocal -eq 2) {
-						if ($brailleXLocal -eq 0) {
-							$bit = 0x04
-						} else {
-							$bit = 0x20
-						}
-					} else {
-						if ($brailleXLocal -eq 0) {
-							$bit = 0x40
-						} else {
-							$bit = 0x80
-						}
-					}
+					# Update the braille pattern
+					$braillePatterns[$brailleY][$brailleX] = [int] $braillePatterns[$brailleY][$brailleX] -bor $brailleBits[$brailleYLocal][$brailleXLocal]
 				}
-				# Update the braille pattern
-				$braillePatterns[$brailleY][$brailleX] = [int] $braillePatterns[$brailleY][$brailleX] -bor $bit
 			}
 		}
 
+		# Clear the old data lines, we will generate new ones
 		$dataLines.Clear()
 
 		for ($j = 0; $j -lt $brailleDataHeight; $j++) {
 			$line = ""
 			for ($i = 0; $i -lt $brailleDataWidth; $i++) {
+				# Calculate the unicode
 				$line += [char] ([int] 0x2800 -bor $braillePatterns[$j][$i])
 			}
 			$dataLines.Add($line) > $null
