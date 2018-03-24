@@ -1,8 +1,11 @@
-﻿function Dottify-Text {
+<#
+	Gets a dottified version of the input text.
+#>
+function Get-Dottified {
     # Input parameters
     param (
         # The text that should be converted into the dotted output
-        [Parameter(Mandatory=$true)] [string] $text,
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true)] [string] $text,
         # The size/scale of the characters
         [int] $size = 1,
         # The format of the output
@@ -356,7 +359,7 @@
     # If we don't need to use small dots, skip
     if ($format -ne ':small-dots') {
         $tempFormat = $format
-        if ($tempFormat -eq ':solid-dot') {
+        if ($tempFormat -eq ':solid-dots') {
             $tempFormat = [char] 0x2022 # Bullet icon unicode
         }
     }
