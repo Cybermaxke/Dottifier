@@ -388,25 +388,25 @@ function Get-Dottified {
             for ($i = 0; $i -lt $data.Count; $i++) {
                 $row = $data[$i]
                 # Get the current output line
-                $line = $dataLines[$yOffset + $i * $size]
+                $outputLine = $dataLines[$yOffset + $i * $size]
                 # Apply spaces after each character, except the last one
                 if ($first -eq 0) {
                     for ($j = 0; $j -lt ($size * $charSpacing); $j++) {
-                        $line += ' '
+                        $outputLine += ' '
                     }
                 }
                 foreach ($ochar in [char[]] $row) {
                     for ($j = 0; $j -lt $size; $j++) {
                         if ($ochar -eq 'O') {
-                            $line += $tempFormat
+                            $outputLine += $tempFormat
                         } else {
-                            $line += ' '
+                            $outputLine += ' '
                         }
                     }
                 }
                 # Set the current output line
                 for ($j = 0; $j -lt $size; $j++) {
-                    $dataLines[$yOffset + $i * $size + $j] = $line
+                    $dataLines[$yOffset + $i * $size + $j] = $outputLine
                 }
             }
             # Set the flag for the next interation
@@ -429,13 +429,14 @@ function Get-Dottified {
         # 4 dots per char in y direction
         $brailleBits = @((0x1, 0x8), (0x2, 0x10), (0x4, 0x20), (0x40, 0x80))
         
-        $horizontalDotsPerChar = $brailleBits[0].Count
-        $verticalDotsPerChar = $brailleBits.Count
+        $xDotsPerChar = $brailleBits[0].Count
+        $yDotsPerChar = $brailleBits.Count
 
-        $brailleDataWidth = [int] [System.Math]::Ceiling([double] $maxLineLength / [double] $horizontalDotsPerChar)
-        $brailleDataHeight = [int] [System.Math]::Ceiling([double] $dataLines.Count / [double] $verticalDotsPerChar)
+        $brailleDataWidth = [int] [System.Math]::Ceiling([double] $maxLineLength / [double] $xDotsPerChar)
+        $brailleDataHeight = [int] [System.Math]::Ceiling([double] $dataLines.Count / [double] $yDotsPerChar)
         
         # Create a 2d array list to store the braille byte patterns
+        # [y][x]
         $braillePatterns = New-Object System.Collections.ArrayList
         for ($j = 0; $j -lt $brailleDataHeight; $j++) {
             $braillePatternList = New-Object System.Collections.ArrayList
@@ -447,14 +448,14 @@ function Get-Dottified {
 
         for ($j = 0; $j -lt $dataLines.Count; $j++) {
             # Get the y coordinate within the braille pattern array
-            $brailleY = [int] [System.Math]::Floor($j / $verticalDotsPerChar)
+            $brailleY = [int] [System.Math]::Floor($j / $yDotsPerChar)
             # Get the local y coordinate within the braille character
-            $brailleYLocal = [int] ($j % $verticalDotsPerChar)
+            $brailleYLocal = [int] ($j % $yDotsPerChar)
             for ($i = 0; $i -lt $maxLineLength; $i++) {
                 # Get the x coordinate within the braille pattern array
-                $brailleX = [int] [System.Math]::Floor($i / $horizontalDotsPerChar)
+                $brailleX = [int] [System.Math]::Floor($i / $xDotsPerChar)
                 # Get the local x coordinate within the braille character
-                $brailleXLocal = [int] ($i % $horizontalDotsPerChar)
+                $brailleXLocal = [int] ($i % $xDotsPerChar)
                 # Apply the bit for the specific dot, if needed
                 if (([char[]] $dataLines[$j])[$i] -eq $tempFormat) {
                     # Update the braille pattern

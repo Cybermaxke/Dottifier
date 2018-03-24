@@ -329,7 +329,6 @@ namespace Dottifier
         )]
         public string Text { get => text; set => text = value; }
 
-
         /// <summary>
         /// The size/scale that should be used.
         /// </summary>
@@ -405,7 +404,7 @@ namespace Dottifier
         private string font;
         private Dictionary<char, string[]> fontCharMap;
 
-        GetDottified()
+        public GetDottified()
         {
             // Apply the default font
             Font = DefaultFont;
@@ -439,11 +438,11 @@ namespace Dottifier
             // Use by default 'O' for formatting, will be replaced if using small dots
             char tempFormat = 'O';
             // If we need to use small dots, skip
-            if (format.ToLower() != ":small-dots")
+            if (format.ToLower() != SmallDots)
             {
-                if (format.ToLower() == ":solid-dots")
+                if (format.ToLower() == SolidDots)
                 {
-                    tempFormat = (char) 0x2022; // Bullet icon unicode
+                    tempFormat = (char)0x2022; // Bullet icon unicode
                 }
                 else
                 {
@@ -472,8 +471,114 @@ namespace Dottifier
                     }
                     // Increase the current line length
                     length += charData[0].Length * size;
+                    // Loop through all the rows
+                    for (int i = 0; i < charData.Length; i++)
+                    {
+                        string row = charData[i];
+                        // Get the current output line
+                        string outputLine = dataLines[yOffset + i * size];
+                        // Apply spaces after each character, except the last one
+                        if (!first)
+                        {
+                            for (int j = 0; j < size * charSpacing; j++)
+                            {
+                                outputLine += ' ';
+                            }
+                        }
+                        foreach (char oc in row)
+                        {
+                            for (int j = 0; j < size; j++)
+                            {
+                                if (oc == 'O')
+                                {
+                                    outputLine += tempFormat;
+                                }
+                                else
+                                {
+                                    outputLine += ' ';
+                                }
+                            }
+                        }
+                        // Set the current output lines
+                        for (int j = 0; j < size; j++) {
+                            dataLines[yOffset + i * size + j] = outputLine;
+                        }
+                    }
+                    // Set the flag for the next interation
+                    first = false;
+                }
+                // Update the max line length if needed
+                if (length > maxLineLength) {
+                    maxLineLength = length;
+                }
+                // Increase offset, also apply line spacing to avoid sticking lines together
+                yOffset = charHeight + lineSpacing;
+            }
+
+            //  Step 2 (if needed):
+            // https://en.wikipedia.org/wiki/Braille_Patterns
+
+            if (format.ToLower() == SmallDots)
+            {
+                // [y,x]
+                // 2 dots per char in x direction
+                // 4 dots per char in y direction
+                byte[,] brailleBits = { { 0x1, 0x8 }, { 0x2, 0x10 }, { 0x4, 0x20 }, { 0x40, 0x80 } };
+
+                int xDotsPerChar = brailleBits.GetLength(1);
+                int yDotsPerChar = brailleBits.GetLength(0);
+
+                int brailleDataWidth = maxLineLength / xDotsPerChar;
+                int brailleDataHeight = dataLines.Count / yDotsPerChar;
+
+                // Create a 2d array list to store the braille byte patterns
+                // [y,x]
+                byte[,] braillePatterns = new byte[brailleDataHeight, brailleDataWidth];
+
+                for (int j = 0; j < dataLines.Count; j++)
+                {
+                    string line = dataLines[j];
+                    // Get the y coordinate within the braille pattern array
+                    int brailleY = j / yDotsPerChar;
+                    // Get the local y coordinate within the braille character
+                    int brailleYLocal = j % yDotsPerChar;
+                    for (int i = 0; i < line.Length; i++)
+                    {
+                        if (line[i] == tempFormat)
+                        {
+                            // Get the x coordinate within the braille pattern array
+                            int brailleX = i / xDotsPerChar;
+                            // Get the local x coordinate within the braille character
+                            int brailleXLocal = i % xDotsPerChar;
+                            // Apply the bit for the specific dot
+                            braillePatterns[brailleY, brailleX] = (byte) (braillePatterns[brailleY, brailleX] | brailleBits[brailleYLocal, brailleXLocal]);
+                        }
+                    }
+                }
+
+                // Clear the old data lines, we will generate new ones
+                dataLines.Clear();
+
+                for (int j = 0; j < brailleDataHeight; j++)
+                {
+                    string line = "";
+                    for (int i = 0; i < brailleDataWidth; i++)
+                    {
+                        byte bits = braillePatterns[j, i];
+                        // The space braille unicode doesn't have the same length :(
+                        if (bits == 0)
+                        {
+                            bits = 0x80;
+                        }
+                        // Calculate the unicode and append it to the line
+                        line += (char) (0x2800 | bits);
+                    }
+                    dataLines.Add(line);
                 }
             }
+
+            // Push the text lines in the pipeline
+            WriteObject(dataLines);
         }
     }
 }
