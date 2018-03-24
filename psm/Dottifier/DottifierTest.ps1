@@ -3,7 +3,7 @@ $pathSeparator = [IO.Path]::DirectorySeparatorChar
 $path = $PSScriptRoot + $pathSeparator + "Dottifier.psm1"
 
 # Load the script
-. $path
+Import-Module $path
 # Test the Dottify-Text function
 Get-Dottified -Text hoho -Size 2 -Format X
 "" # Write empty line

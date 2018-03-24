@@ -349,14 +349,14 @@ function Get-Dottified {
     # The current y offset, depending on
     # the max height of the character format
     # The offset will be increased with each text line, separated by \n
-    $yoffset = 0
+    $yOffset = 0
 
     # The max line length
     $maxLineLength = 0
 
     # Use by default 'O' for formatting, is used to check for small dots
     $tempFormat = 'O'
-    # If we don't need to use small dots, skip
+    # If we need to use small dots, skip
     if ($format -ne ':small-dots') {
         $tempFormat = $format
         if ($tempFormat -eq ':solid-dots') {
@@ -368,7 +368,7 @@ function Get-Dottified {
     foreach ($line in $text.Split([Environment]::NewLine)) {
         $length = 0
         # Expands the dataLines list for the current y offset and char height
-        while ($dataLines.Count -lt ($yoffset + $charHeight * $size)) {
+        while ($dataLines.Count -lt ($yOffset + $charHeight * $size)) {
             # https://stackoverflow.com/questions/2149159/prevent-arraylist-add-from-returning-the-index
             # Redirect to null to avoid printing the index
             $dataLines.Add("") > $null
@@ -383,12 +383,12 @@ function Get-Dottified {
                 $data = $charMap[[char] 0x0000]
             }
             # Increase the current line length
-            $length +=  $data.Count * $size
+            $length += $data.Count * $size
             # Loop through all the rows
             for ($i = 0; $i -lt $data.Count; $i++) {
                 $row = $data[$i]
                 # Get the current output line
-                $line = $dataLines[$yoffset + $i * $size]
+                $line = $dataLines[$yOffset + $i * $size]
                 # Apply spaces after each character, except the last one
                 if ($first -eq 0) {
                     for ($j = 0; $j -lt ($size * $charSpacing); $j++) {
@@ -406,7 +406,7 @@ function Get-Dottified {
                 }
                 # Set the current output line
                 for ($j = 0; $j -lt $size; $j++) {
-                    $dataLines[$yoffset + $i * $size + $j] = $line
+                    $dataLines[$yOffset + $i * $size + $j] = $line
                 }
             }
             # Set the flag for the next interation
@@ -417,7 +417,7 @@ function Get-Dottified {
             $maxLineLength = $length
         }
         # Increase offset, also apply line spacing to avoid sticking lines together
-        $yoffset += $charHeight + $lineSpacing
+        $yOffset += $charHeight + $lineSpacing
     }
 
     ## Step 2 (if needed):
