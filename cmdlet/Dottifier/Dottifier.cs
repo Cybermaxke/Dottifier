@@ -385,7 +385,7 @@ namespace Dottifier
                     // Parse the char value as a string array
                     string[] format = entry.Value.ToObject<string[]>();
                     // Loop through every character in the key
-                    foreach (char c in entry.Key.ToCharArray())
+                    foreach (char c in entry.Key)
                     {
                         newFontCharMap[c] = format;
                     }
@@ -404,7 +404,7 @@ namespace Dottifier
         private string font;
         private Dictionary<char, string[]> fontCharMap;
 
-        public GetDottified()
+        GetDottified()
         {
             // Apply the default font
             Font = DefaultFont;

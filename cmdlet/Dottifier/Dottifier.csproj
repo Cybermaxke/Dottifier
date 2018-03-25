@@ -2,11 +2,37 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <Authors>Seppe Volkaerts</Authors>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <WarningLevel>2</WarningLevel>
+    <OutputPath>bin\</OutputPath>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ILMerge" Version="2.14.1208" />
+    <PackageReference Include="ILRepack" Version="2.0.15" />
     <PackageReference Include="Microsoft.PowerShell.3.ReferenceAssemblies" Version="1.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="11.0.1" />
+    <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
 
+  <PropertyGroup>
+    <UserDir>$(HOMEDRIVE)$(HOMEPATH)</UserDir>
+  </PropertyGroup>
+ 
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <ItemGroup>
+      <MergeAssemblies Include="$(OutputPath)Dottifier.dll" />
+      <MergeAssemblies Include="$(OutputPath)Newtonsoft.Json.dll" />
+    </ItemGroup>
+    <PropertyGroup>
+      <OutputAssembly>$(OutputPath)DottifierModule.dll</OutputAssembly>
+      <Merger Condition="('$(OS)' == 'Windows_NT')">"$(UserDir)\.nuget\packages\ilmerge\2.14.1208\tools\ILMerge.exe"</Merger>
+      <Merger Condition="('$(OS)' != 'Windows_NT')">mono --runtime=v4.0.30319 "$(UserDir)\.nuget\packages\ilrepack\2.0.15\tools\ILRepack.exe"</Merger>
+    </PropertyGroup>
+    <Message Text="MERGING: @(MergeAssemblies->'%(Filename)') into $(OutputAssembly)" Importance="High" />
+    <Exec Command="$(Merger) /out:&quot;$(OutputAssembly)&quot; @(MergeAssemblies->'&quot;%(FullPath)&quot;', ' ')" />
+  </Target>
 </Project>
