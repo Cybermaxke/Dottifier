@@ -15,3 +15,5 @@ Get-Dottified -Text abc
 Get-Dottified -Text Dottifier! -Size 4
 "" # Write empty line
 Get-Dottified -Text Seppe -Size 2
+"" # Write empty line
+"Cybermaxke" | Get-Dottified -Size 3
