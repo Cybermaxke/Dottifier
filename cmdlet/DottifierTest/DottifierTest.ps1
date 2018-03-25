@@ -1,11 +1,11 @@
 ﻿# Get the relative path of the DottifyText.ps1 file
 $pathSeparator = [IO.Path]::DirectorySeparatorChar
-$path = "Dottifier/bin/netstandard2.0/Dottifier.dll".Replace('/', $pathSeparator) | Resolve-Path -Relative
+$path = "Dottifier/bin/netstandard2.0/DottifierModule.dll".Replace('/', $pathSeparator) | Resolve-Path -Relative
 
 # Load the module
-Import-Module $path
+powershell -Command "Import-Module $path; Get-Dottified -Text 'hoho'"
 # Test the Dottify-Text function
-Get-Dottified -Text "hoho"
+#Get-Dottified -Text "hoho"
 #Get-Dottified -Text hoho -Size 2 -Format X
 "" # Write empty line
 #Get-Dottified -Text abc
