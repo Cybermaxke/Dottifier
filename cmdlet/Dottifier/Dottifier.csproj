@@ -18,20 +18,29 @@
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Dottifier.psd1">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
   <PropertyGroup>
     <UserDir>$(HOMEDRIVE)$(HOMEPATH)</UserDir>
+    <Description />
+    <AssemblyName>DottifierModule</AssemblyName>
   </PropertyGroup>
  
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
     <ItemGroup>
-      <MergeAssemblies Include="$(OutputPath)Dottifier.dll" />
+      <MergeAssemblies Include="$(OutputPath)DottifierModule.dll" />
       <MergeAssemblies Include="$(OutputPath)Newtonsoft.Json.dll" />
     </ItemGroup>
     <PropertyGroup>
-      <OutputAssembly>$(OutputPath)DottifierModule.dll</OutputAssembly>
+      <OutputAssembly>$(OutputPath)Dottifier\Dottifier.dll</OutputAssembly>
       <Merger>"$(UserDir)\.nuget\packages\ilrepack\2.0.15\tools\ILRepack.exe"</Merger>
     </PropertyGroup>
     <Message Text="MERGING: @(MergeAssemblies->'%(Filename)') into $(OutputAssembly)" Importance="High" />
     <Exec Command="$(Merger) /out:&quot;$(OutputAssembly)&quot; @(MergeAssemblies->'&quot;%(FullPath)&quot;', ' ')" />
+	<Exec Command="copy $(ProjectDir)Dottifier.psd1 $(ProjectDir)$(OutDir)\Dottifier\" />
   </Target>
 </Project>

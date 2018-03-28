@@ -7,7 +7,8 @@ using System.Management.Automation;
 namespace Dottifier
 {
     [Cmdlet(VerbsCommon.Get, "Dottified")]
-    public class GetDottified : Cmdlet
+    [OutputType(typeof(List<string>))]
+    public class GetDottifiedCmdlet : Cmdlet
     {
         /// <summary>
         /// The Small Dots format name. This format uses
@@ -311,7 +312,7 @@ namespace Dottifier
 
         private static readonly List<string> Formats = new List<string>();
 
-        static GetDottified()
+        static GetDottifiedCmdlet()
         {
             Formats.Add(SmallDots);
             Formats.Add(SolidDots);
@@ -322,7 +323,6 @@ namespace Dottifier
         /// </summary>
         [Parameter(
             Position = 0,
-            ParameterSetName = "Text",
             Mandatory = true,
             ValueFromPipeline = true,
             ValueFromPipelineByPropertyName = true
@@ -332,9 +332,7 @@ namespace Dottifier
         /// <summary>
         /// The size/scale that should be used.
         /// </summary>
-        [Parameter(
-            ParameterSetName = "Size"
-        )]
+        [Parameter]
         [Alias("Scale")]
         public int Size
         {
@@ -352,9 +350,7 @@ namespace Dottifier
         /// <summary>
         /// The formatting that should be used.
         /// </summary>
-        [Parameter(
-            ParameterSetName = "Format"
-        )]
+        [Parameter]
         public string Format
         {
             get => format;
@@ -373,6 +369,7 @@ namespace Dottifier
         /// <summary>
         /// Sets the font that should be used to output text. Expects a valid JSON string.
         /// </summary>
+        [Parameter]
         public string Font {
             get => font;
             set
@@ -404,7 +401,7 @@ namespace Dottifier
         private string font;
         private Dictionary<char, string[]> fontCharMap;
 
-        GetDottified()
+        GetDottifiedCmdlet()
         {
             // Apply the default font
             Font = DefaultFont;

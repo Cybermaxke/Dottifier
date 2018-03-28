@@ -482,6 +482,6 @@ function Get-Dottified {
         }
     }
     
-    # Write output
-    Write-Output $dataLines
+    # Return output
+    return $dataLines
 }

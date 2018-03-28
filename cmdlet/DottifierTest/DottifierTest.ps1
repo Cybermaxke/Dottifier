@@ -3,7 +3,7 @@ $pathSeparator = [IO.Path]::DirectorySeparatorChar
 $path = "Dottifier/bin/netstandard2.0/DottifierModule.dll".Replace('/', $pathSeparator) | Resolve-Path -Relative
 
 # Load the module
-powershell -Command "Import-Module $path; Get-Dottified -Text 'hoho'"
+powershell -Command "Import-Module $path -Verbose; Get-Dottified -Text 'hoho'"
 # Test the Dottify-Text function
 #Get-Dottified -Text "hoho"
 #Get-Dottified -Text hoho -Size 2 -Format X
