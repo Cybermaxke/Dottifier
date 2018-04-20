@@ -1,19 +1,148 @@
 <#
-	Gets a dottified version of the input text.
+.SYNOPSIS
+    Gets a dottified version of the input text.
+.DESCRIPTION
+    Gets a dottified version of the input text.
+.PARAMETER Text
+    The text that will be converted into the desired format (by default dotted). Only
+    certain characters are supported by the default font. This font can be overridden
+    using the Font parameter to support more characters/custom style. Missing characters
+    will be replaced by a 'unknown character' (box with cross in the middle).
+.PARAMETER Size
+    The size/scale of the characters. This the the amount of regular characters (or braille
+    dots) that will be used per character pixel. The character pixels are defined in the
+    font JSON format, where each 'O' will be used size/scale times.
+.PARAMETER Format
+    The format will be used to generate the characters, every 'O' in a font character will be
+    replaced by size/scale times the format character. The character will be one braille dot
+    of the 8 in a braille character when using the ':small-dots' format.
+
+    Supported formats:
+        - '<ascii-code>' A ascii will very likely always work.
+        - '<unicode>' A unicode will only work in consoles/file formats that support unicodes.
+        - ':small-dots' Uses braille dots, 8 dots per character, 4 dots high, 2 dots wide. (Requires unicode support)
+        - ':solid-dots' Equivalent for the bullet unicode character. (Requires unicode support)
+.PARAMETER Font
+    The font that will be used to generate the characters, this parameter expects a valid JSON
+    string in the following format:
+
+    A JSON object, where the key is the target character for which each character format will be
+    used. In the following example is for both uppercase ('A') and lowercase 'a' the character
+    format used.
+    Each character format is a JSON array, where each entry is a String of the same length (which
+    represents the width of the character). Not all the character require the same length, just
+    each line of the character.
+    All the characters should have the same heigth (the amount of lines).
+    Each 'O' in each line represents one character of the format that will be generated. A space
+    represents a space.
+
+    {
+        "aA": [
+            "  O  ",
+            " O O ",
+            "O   O",
+            "O   O",
+            "OOOOO",
+            "O   O",
+            "O   O"
+        ],
+        "bB": [
+            "OOOO ",
+            "O   O",
+            "O   O",
+            "OOOO ",
+            "O   O",
+            "O   O",
+            "OOOO "
+        ]
+    }
+.EXAMPLE
+    "Test" | Get-Dottified
+
+    ooooo  ooooo   ooo   ooooo
+      o    o      o   o    o
+      o    o      o        o
+      o    ooo     ooo     o
+      o    o          o    o
+      o    o      o   o    o
+      o    ooooo   ooo     o
+.EXAMPLE
+    "Test" | Get-Dottified -Format "x"
+
+    xxxxx  xxxxx   xxx   xxxxx
+      x    x      x   x    x
+      x    x      x        x
+      x    xxx     xxx     x
+      x    x          x    x
+      x    x      x   x    x
+      x    xxxxx   xxx     x
+.EXAMPLE
+    "Test" | Get-Dottified -Format "x" -Size 2
+
+    xxxxxxxxxx    xxxxxxxxxx      xxxxxx      xxxxxxxxxx
+    xxxxxxxxxx    xxxxxxxxxx      xxxxxx      xxxxxxxxxx
+        xx        xx            xx      xx        xx
+        xx        xx            xx      xx        xx
+        xx        xx            xx                xx
+        xx        xx            xx                xx
+        xx        xxxxxx          xxxxxx          xx
+        xx        xxxxxx          xxxxxx          xx
+        xx        xx                    xx        xx
+        xx        xx                    xx        xx
+        xx        xx            xx      xx        xx
+        xx        xx            xx      xx        xx
+        xx        xxxxxxxxxx      xxxxxx          xx
+        xx        xxxxxxxxxx      xxxxxx          xx
+.EXAMPLE
+    "Test" | Get-Dottified -Size 2 -Format ':small-dots'
+
+    (may be unreadable if the terminal doesn't support unicode)
+
+    ????????????????????????????
+    ????????????????????????????
+    ????????????????????????????
+    ????????????????????????????
+.EXAMPLE
+    Get-Dottified -Text 'Test' -Format ':solid-dots'
+
+    •••••  •••••   •••   •••••
+      •    •      •   •    •  
+      •    •      •        •  
+      •    •••     •••     •  
+      •    •          •    •  
+      •    •      •   •    •  
+      •    •••••   •••     •  
+.NOTES
+    Author: Seppe Volkaerts
 #>
 function Get-Dottified {
     # Input parameters
     param (
         # The text that should be converted into the dotted output
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true)] [string] $text,
+        [Parameter(
+            Mandatory=$true,
+            ValueFromPipeline=$true,
+            HelpMessage="The text that will be converted into the desired format. (By default dotted)"
+        )]
+        [string]
+        $text,
         # The size/scale of the characters
-        [int] $size = 1,
+        [Parameter(
+            Mandatory=$false,
+            HelpMessage="The size/scale of the characters. This the the amount of regular characters
+            (or braille dots) that will be used per character pixel. The character pixels are defined in
+            the font JSON format, where each 'O' will be used size/scale times."
+        )]
+        [int]
+        $size = 1,
         # The format of the output
         # ':small-dots'     -> Small braille dots
         # 'A', 'B', etc.    -> A specific character
-        [string] $format = ':small-dots',
+        [string]
+        $format = 'o',
         # The font json data
-        [string] $font =
+        [string]
+        $font =
 @"
 {
     "aA": [

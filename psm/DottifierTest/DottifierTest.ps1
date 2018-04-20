@@ -1,6 +1,6 @@
-# Get the relative path of the DottifyText.ps1 file
+# Get the relative path of the Dottifier module
 $pathSeparator = [IO.Path]::DirectorySeparatorChar
-$path = "Dottifier/Dottifier.psm1".Replace('/', $pathSeparator) | Resolve-Path -Relative
+$path = "Dottifier" | Resolve-Path -Relative
 # Print the module path
 "Dottifier Module: $path"
 
@@ -10,10 +10,14 @@ Import-Module $path
 "" # Write empty line
 Get-Dottified -Text hoho -Size 2 -Format X
 "" # Write empty line
-Get-Dottified -Text abc
+Get-Dottified -Text abcdefghijklmnopxyz
+"" # Write empty line
+Get-Dottified -Text abcdefghijklmnopxyz -size 2
 "" # Write empty line
 Get-Dottified -Text Dottifier! -Size 4
 "" # Write empty line
 Get-Dottified -Text Seppe -Size 2
 "" # Write empty line
 "Cybermaxke" | Get-Dottified -Size 3
+"" # Write empty line
+Get-Dottified -Text 'Test' -Format ':solid-dots'
