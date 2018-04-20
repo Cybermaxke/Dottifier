@@ -1,8 +1,9 @@
 <#
 .SYNOPSIS
-    Gets a dottified version of the input text.
+    Transforms the input text into a dottified version (by default).
 .DESCRIPTION
-    Gets a dottified version of the input text.
+    Transforms the input text into a dottified version (by default). There is support
+    for customized formatting, fonts and text sizes.
 .PARAMETER Text
     The text that will be converted into the desired format (by default dotted). Only
     certain characters are supported by the default font. This font can be overridden
@@ -20,8 +21,10 @@
     Supported formats:
         - '<ascii-code>' A ascii will very likely always work.
         - '<unicode>' A unicode will only work in consoles/file formats that support unicodes.
-        - ':small-dots' Uses braille dots, 8 dots per character, 4 dots high, 2 dots wide. (Requires unicode support)
-        - ':solid-dots' Equivalent for the bullet unicode character. (Requires unicode support)
+        - ':small-dots' Uses braille dots, 8 dots per character, 4 dots high, 2 dots wide.
+                        (Requires unicode support)
+        - ':solid-dots' Equivalent for the bullet unicode character.
+                        (Requires unicode support)
 .PARAMETER Font
     The font that will be used to generate the characters, this parameter expects a valid JSON
     string in the following format:
@@ -98,15 +101,18 @@
 
     (not possible to preview, use terminal that supports all unicodes or print to UTF-8 file)
 .EXAMPLE
-    The following example writes a braille dottified text to a file in UTF-8
+    $path = "TestOutput.txt"; "Test" | Get-Dottified -Size 2 -Format ':small-dots' | Set-Content -Encoding UTF8 -Path $path; Notepad $path
+
+    This example writes a braille dottified text to a file in UTF-8
     encoding. Afterwards it's opened in a text editor.
 
-    # Declare the text file path
-    $path = "TestOutput.txt"
-    # Dottify the text "Text" and write it to the file at the given path
-    "Test" | Get-Dottified -Size 2 -Format ':small-dots' | Set-Content -Encoding UTF8 -Path $path
-    # Open notepad with the given file path
-    Notepad $path
+    Step by step:
+      # Declare the text file path
+      $path = "TestOutput.txt"
+      # Dottify the text "Text" and write it to the file at the given path
+      "Test" | Get-Dottified -Size 2 -Format ':small-dots' | Set-Content -Encoding UTF8 -Path $path
+      # Open notepad with the given file path
+      Notepad $path
 .EXAMPLE
     Get-Dottified -Text 'Test' -Format ':solid-dots'
 
